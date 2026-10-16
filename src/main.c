@@ -1,4 +1,5 @@
 #include "board.h"
+#include "uart.h"
 #include "kernel/task.h"
 #include "kernel/scheduler.h"
 #include "kernel/sync.h"
@@ -48,6 +49,8 @@ static void heartbeat(void *argument)
 int main(void)
 {
     board_init();
+    uart_init();
+    uart_write("AyrenOS starting\r\n");
     boot_task_result = queue_init(&messages, message_storage, 4, sizeof(uint32_t));
 
     for (size_t i = 0; i < 2U && boot_task_result == TASK_OK; ++i) {

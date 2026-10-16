@@ -17,6 +17,7 @@ add_executable(ayrenos.elf
     src/port/cortex_m3/port.c
     src/port/cortex_m3/context.s
     boards/nucleo-f103rb/board.c
+    boards/nucleo-f103rb/uart.c
     boards/nucleo-f103rb/startup.s
 )
 

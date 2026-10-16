@@ -28,6 +28,27 @@ and 1 KB at the top of RAM for the main/interrupt stack. The build also writes
 change the hardware clock, update the declared frequency too. Clock changes
 after kernel startup are unsupported.
 
+## UART
+
+The board driver in `boards/nucleo-f103rb/uart.c` uses USART2 on PA2 (TX)
+and PA3 (RX). Open the ST-LINK virtual COM port at **115200 baud, 8N1, no
+flow control** to see `AyrenOS starting` after reset. The default board solder
+bridges connect these pins to ST-LINK; see
+[UM1724](https://www.st.com/resource/en/user_manual/dm00105823.pdf).
+
+Include `uart.h` and call `uart_init()` once before use. `uart_putc()` sends
+one character and `uart_write()` sends a null-terminated string; both poll
+for transmit space and return without waiting for the final stop bit.
+Use explicit `\r\n` for terminal line endings. `uart_try_read(&byte)` returns
+immediately with a byte or `false` if none is available or a receive error
+occurred. Errored bytes are discarded; the output argument is unchanged.
+
+There are no interrupts, software buffers, or internal locks. Poll receive
+often enough to avoid overruns, and serialize access when sharing the UART
+between tasks. The baud calculation assumes the reset 8 MHz APB1 clock.
+The register setup follows
+[RM0008](https://www.st.com/resource/en/reference_manual/cd00171190-stm32f101-103-105-107-stm32f100-series-armbased-32bit-mcus-stmicroelectronics.pdf).
+
 ## Tasks and scheduling
 
 Create tasks before `kernel_start()`. Stacks must be eight-byte aligned, have
