@@ -14,7 +14,7 @@ vector_table:
     .word Reset_Handler    /* Code to execute after reset */
 
     .word Default_Handler  /* NMI */
-    .word Default_Handler  /* HardFault */
+    .word HardFault_Handler /* HardFault */
     .word Default_Handler  /* MemManage */
     .word Default_Handler  /* BusFault */
     .word Default_Handler  /* UsageFault */
@@ -28,7 +28,7 @@ vector_table:
     .word Default_Handler  /* Debug monitor */
     .word 0                /* Reserved */
     .word PendSV_Handler   /* PendSV */
-    .word Default_Handler  /* SysTick */
+    .word SysTick_Handler  /* SysTick */
 
     /* Gives all 43 peripheral interrupts a default handler */
     .rept 43
@@ -76,3 +76,12 @@ Reset_Handler:
     b Default_Handler
 
 .size Reset_Handler, .-Reset_Handler
+
+.weak SVC_Handler
+.thumb_set SVC_Handler, Default_Handler
+
+.weak PendSV_Handler
+.thumb_set PendSV_Handler, Default_Handler
+
+.weak SysTick_Handler
+.thumb_set SysTick_Handler, Default_Handler

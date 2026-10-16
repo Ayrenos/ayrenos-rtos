@@ -7,6 +7,9 @@ MEMORY
 }
 
 /* Start stack at the top of RAM and grows downward */
+_sram = ORIGIN(RAM);
+_eram = ORIGIN(RAM) + LENGTH(RAM);
+
 _estack = ORIGIN(RAM) + LENGTH(RAM);
 
 /* Mark bottom of the 1 KB space planned for the stack */

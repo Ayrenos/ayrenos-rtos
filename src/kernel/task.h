@@ -9,6 +9,10 @@
 #define TASK_PRIORITY_MIN 1U
 #define TASK_PRIORITY_MAX 7U
 
+/* Finite delays are limited to half the tick range for wrap-safe comparisons. */
+#define TASK_WAIT_MAX INT32_MAX
+#define TASK_WAIT_FOREVER UINT32_MAX
+
 typedef uint16_t task_id_t;
 typedef void (*task_entry_t)(void *argument);
 
@@ -21,7 +25,12 @@ typedef enum {
     TASK_ERR_PRIORITY,
     TASK_ERR_CAPACITY,
     TASK_ERR_KERNEL_STARTED,
-    TASK_ERR_CONTEXT
+    TASK_ERR_CONTEXT,
+    TASK_ERR_STATE,
+    TASK_ERR_TIMEOUT,
+    TASK_ERR_LIMIT,
+    TASK_ERR_OWNERSHIP,
+    TASK_ERR_DEADLOCK
 } task_result_t;
 
 typedef struct {
@@ -38,5 +47,11 @@ task_result_t task_create(
     const task_config_t *config,
     task_id_t *out_id
 );
+
+task_result_t task_yield(void);
+task_result_t task_sleep(uint32_t ticks);
+
+/* Includes the initial exception frame; sampled while interrupts are masked. */
+task_result_t task_stack_usage(task_id_t id, size_t *out_words);
 
 #endif /* AYRENOS_TASK_H */
