@@ -55,7 +55,6 @@ static void worker(void *argument)
 
         switch (command[id]) {
         case 1:
-            /* No yield: only SysTick can give the other equal-priority task CPU time. */
             while (run_busy) {
                 ++progress[id];
             }

@@ -24,7 +24,6 @@ typedef enum {
 } task_wait_t;
 
 typedef struct {
-    /* Assembly requires the saved stack pointer at offset zero. */
     uint32_t *sp;
     uint32_t *stack_base;
     size_t stack_words;
@@ -49,7 +48,6 @@ size_t task_internal_count(void);
 void task_internal_seal_creation(void);
 void task_internal_prepare(task_control_t *task, const task_config_t *config);
 
-/* These helpers require a kernel critical section. */
 void scheduler_select(void);
 void scheduler_tick(void);
 void scheduler_block(void *object, task_wait_t kind, void *buffer, uint32_t ticks);

@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Include the kernel so boundary tests can place the tick near wraparound. */
 #include "../src/kernel/task.c"
 #include "../src/kernel/scheduler.c"
 #include "../src/kernel/sync.c"
@@ -214,7 +213,7 @@ static void test_semaphore(void)
     assert(semaphore_give(&semaphore) == TASK_OK);
     assert(tasks[2].state == TASK_READY);
     assert(semaphore_give(&semaphore) == TASK_OK);
-    assert(tasks[1].state == TASK_READY); /* FIFO among equal priorities. */
+    assert(tasks[1].state == TASK_READY);
     handler_context = true;
     assert(semaphore_give(&semaphore) == TASK_ERR_CONTEXT);
     assert(semaphore_give_isr(&semaphore) == TASK_OK);
@@ -255,7 +254,7 @@ static void test_mutex(void)
     assert(tasks[1].priority == 7);
     scheduler_current = &tasks[1];
     assert(mutex_unlock(&second) == TASK_OK);
-    assert(tasks[1].priority == 7); /* Still owns the contended first mutex. */
+    assert(tasks[1].priority == 7);
     assert(mutex_unlock(&first) == TASK_OK);
     assert(tasks[1].priority == 4 && first.owner == &tasks[2]);
 }

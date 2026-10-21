@@ -9,7 +9,6 @@
 #define TASK_PRIORITY_MIN 1U
 #define TASK_PRIORITY_MAX 7U
 
-/* Finite delays are limited to half the tick range for wrap-safe comparisons. */
 #define TASK_WAIT_MAX INT32_MAX
 #define TASK_WAIT_FOREVER UINT32_MAX
 
@@ -51,7 +50,6 @@ task_result_t task_create(
 task_result_t task_yield(void);
 task_result_t task_sleep(uint32_t ticks);
 
-/* Includes the initial exception frame; sampled while interrupts are masked. */
 task_result_t task_stack_usage(task_id_t id, size_t *out_words);
 
 #endif /* AYRENOS_TASK_H */

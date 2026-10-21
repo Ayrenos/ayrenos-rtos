@@ -33,7 +33,6 @@ def main():
     for tool in ["arm-none-eabi-gcc", "qemu-system-arm"]:
         if shutil.which(tool) is None:
             raise SystemExit(f"Missing {tool}; install it or use --host-only")
-    # MPS2 provides a Cortex-M3 and RAM at the same address; flash starts at zero.
     linker = (ROOT / "boards/nucleo-f103rb/linker.ld").read_text()
     (BUILD / "test.ld").write_text(linker.replace("0x08000000", "0x00000000"))
     sources = ["tests/cortex_m3_test.c", "tests/registers.s",

@@ -16,7 +16,7 @@
 #define USART2_CLOCK_ENABLE (1u << 17)
 #define USART_RXNE          (1u << 5)
 #define USART_TXE           (1u << 7)
-#define USART_RX_ERRORS     0xFu /* Parity, framing, noise, overrun. */
+#define USART_RX_ERRORS     0xFu
 #define UART_BAUD           115200U
 
 void uart_init(void)
@@ -26,7 +26,6 @@ void uart_init(void)
     (void)RCC_APB2ENR;
     (void)RCC_APB1ENR;
 
-    /* PA2: alternate-function push-pull, 2 MHz; PA3: floating input. */
     uint32_t config = GPIOA_CRL;
     config &= ~((0xFu << 8) | (0xFu << 12));
     config |= (0xAu << 8) | (0x4u << 12);
@@ -35,11 +34,8 @@ void uart_init(void)
     USART2_CR1 = 0;
     USART2_CR2 = 0;
     USART2_CR3 = 0;
-    /* APB1 runs at the core clock with the reset clock configuration.
-     * With 16x oversampling, BRR encodes the rounded clock/baud ratio.
-     */
     USART2_BRR = (BOARD_CORE_CLOCK_HZ + UART_BAUD / 2U) / UART_BAUD;
-    USART2_CR1 = (1u << 13) | (1u << 3) | (1u << 2); /* UE, TE, RE */
+    USART2_CR1 = (1u << 13) | (1u << 3) | (1u << 2);
 }
 
 void uart_putc(char character)
@@ -69,7 +65,6 @@ bool uart_try_read(uint8_t *byte)
         return false;
     }
 
-    /* Reading SR then DR clears RXNE and receive errors. Drop errored data. */
     uint8_t data = (uint8_t)USART2_DR;
 
     if ((status & USART_RX_ERRORS) != 0U) {

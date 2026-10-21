@@ -18,7 +18,6 @@ typedef struct {
     uint32_t mmfar;
     uint32_t bfar;
     uint32_t frame_valid;
-    /* r0, r1, r2, r3, r12, lr, pc, xPSR */
     uint32_t frame[8];
 } kernel_fault_t;
 
@@ -28,4 +27,4 @@ extern volatile kernel_fault_t kernel_fault;
 _Noreturn void kernel_panic(kernel_panic_t reason);
 _Noreturn void kernel_hardfault(const uint32_t *frame, uint32_t exception_return);
 
-#endif /* AYRENOS_DEBUG_H */
+#endif

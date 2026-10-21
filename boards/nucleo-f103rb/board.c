@@ -10,28 +10,17 @@
 
 void board_init(void)
 {
-    /* Enable the GPIOA peripheral clock. */
     RCC_APB2ENR |= GPIOA_CLOCK_ENABLE;
 
-    /* Read back after enabling the peripheral clock. */
     (void)RCC_APB2ENR;
 
-    /* Set the output latch low before enabling the output. */
     GPIOA_BSRR = 1u << (LED_PIN + 16u);
 
-    /*
-     * Each pin has a four-bit configuration field.
-     * PA5 occupies bits 23:20.
-     *
-     * CNF  = 00: general-purpose push-pull
-     * MODE = 10: output, maximum speed 2 MHz
-     */
     uint32_t config = GPIOA_CRL;
     config &= ~(0xFu << (LED_PIN * 4u));
     config |=  (0x2u << (LED_PIN * 4u));
     GPIOA_CRL = config;
 }
-
 void board_led_write(bool on)
 {
     if (on) {

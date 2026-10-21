@@ -8,21 +8,15 @@ _Static_assert(
     "This port requires 32-bit addresses"
 );
 
-/* PendSV also reads stack bounds directly from the TCB. */
 _Static_assert(offsetof(task_control_t, stack_base) == 4, "Unexpected stack base offset");
 _Static_assert(offsetof(task_control_t, stack_words) == 8, "Unexpected stack size offset");
 _Static_assert(KERNEL_PANIC_STACK == 2, "Assembly requires stack panic code two");
 
-/* Returning while holding kernel objects is a fatal programming error. */
 static _Noreturn void task_return_trap(void)
 {
     kernel_panic(KERNEL_PANIC_TASK_RETURN);
 }
 
-/*
- * IPSR is zero in thread mode.
- * A nonzero value means an exception handler is executing.
- */
 bool task_port_in_handler(void)
 {
     uint32_t ipsr;
@@ -35,41 +29,22 @@ bool task_port_in_handler(void)
     return ipsr != 0u;
 }
 
-/*
- * Called after task_create() validates the configuration.
- *
- * Build the context that the restore assembly expects.
- */
 uint32_t *task_port_prepare_stack(const task_config_t *config)
 {
-    /* One word past the end of the allocated stack. */
     uint32_t *sp = config->stack + config->stack_words;
 
-    /*
-     * Reserve:
-     *   8 software-saved registers
-     *   8 hardware-stacked registers
-     */
     sp -= 16;
 
-    /* Give unused initial registers predictable values. */
     for (unsigned i = 0; i < 16u; ++i) {
         sp[i] = 0u;
     }
 
-    /* r0: first argument to the task entry function. */
     sp[8] = (uint32_t)(uintptr_t)config->argument;
 
-    /* lr: where execution goes if the task returns. */
     sp[13] = (uint32_t)(uintptr_t)task_return_trap;
 
-    /*
-     * pc: first instruction of the task.
-     * Clear the function pointer's Thumb tag in the stacked PC.
-     */
     sp[14] = (uint32_t)(uintptr_t)config->entry & ~1u;
 
-    /* xPSR: set the Thumb execution-state bit. */
     sp[15] = 1u << 24;
 
     return sp;
@@ -135,14 +110,11 @@ bool task_port_init(uint32_t clock_hz, uint32_t tick_hz)
     SYST_RVR = reload;
     SYST_CVR = 0;
 
-    /* PendSV is lowest priority. SysTick is one level above on STM32F103. */
     SCB_SHPR3 = (SCB_SHPR3 & 0x0000FFFFU) | (0xFFU << 16) | (0xE0U << 24);
-    /* Discard any pending tick or switch left by boot code. */
     SCB_ICSR = (1U << 25) | (1U << 27);
     return true;
 }
 
-/* Called inside SVC so no tick can interrupt startup before PSP is restored. */
 void task_port_start_tick(void)
 {
     SYST_CSR = (1U << 2) | (1U << 1) | 1U;

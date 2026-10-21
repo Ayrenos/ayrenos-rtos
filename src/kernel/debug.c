@@ -13,7 +13,6 @@ _Noreturn void kernel_panic(kernel_panic_t reason)
     (void)kernel_critical_enter();
     kernel_panic_reason = reason;
 
-    /* Set a debugger breakpoint here to inspect the failure. */
     for (;;) {
         __asm volatile ("nop");
     }
@@ -33,7 +32,6 @@ _Noreturn void kernel_hardfault(const uint32_t *frame, uint32_t exception_return
     uintptr_t begin = (uintptr_t)&_sram;
     uintptr_t end = (uintptr_t)&_eram;
 
-    /* Stacking faults can leave an incomplete frame; never dereference it. */
     if ((kernel_fault.cfsr & ((1U << 4) | (1U << 12))) == 0U &&
         (address & 3U) == 0U && address >= begin && address <= end - 32U) {
         for (size_t i = 0; i < 8U; ++i) {

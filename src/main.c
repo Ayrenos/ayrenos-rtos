@@ -10,7 +10,6 @@ static uint32_t periods[2] = { 500U, 125U };
 static queue_t messages;
 static uint32_t message_storage[4];
 
-/* Inspect these in the debugger to check startup and independent task progress. */
 volatile task_result_t boot_task_result;
 volatile uint32_t worker_counters[2];
 volatile uint32_t last_heartbeat;

@@ -33,7 +33,6 @@ static void copy_item(void *destination, const void *source, size_t bytes)
     }
 }
 
-/* Highest effective priority first; equal priorities retain arrival order. */
 static task_control_t *waiter(void *object, task_wait_t kind)
 {
     task_control_t *best = NULL;
@@ -58,7 +57,6 @@ static task_control_t *waiter(void *object, task_wait_t kind)
     return best;
 }
 
-/* Rebuild donations, including chains and tasks owning several mutexes. */
 void sync_internal_refresh_priorities(void)
 {
     size_t count = task_internal_count();
@@ -108,7 +106,6 @@ static task_result_t block(void *object, task_wait_t kind, void *buffer,
     scheduler_block(object, kind, buffer, timeout);
     kernel_critical_exit(mask);
 
-    /* PendSV runs before this task resumes; the wakeup stores its result. */
     return task->wait_result;
 }
 
@@ -181,7 +178,6 @@ static task_result_t receive(queue_t *queue, void *item, uint32_t timeout)
     queue->head = (queue->head + 1U) % queue->capacity;
     --queue->count;
 
-    /* Complete a blocked send atomically, preventing another sender stealing space. */
     task_control_t *sender = waiter(queue, TASK_WAIT_SEND);
 
     if (sender != NULL) {
@@ -336,7 +332,6 @@ task_result_t mutex_lock(mutex_t *mutex, uint32_t timeout)
         return TASK_OK;
     }
 
-    /* Reject recursive locking and cycles in mutex ownership chains. */
     for (size_t i = 0; owner != NULL && i <= task_internal_count(); ++i) {
         if (owner == scheduler_current) {
             kernel_critical_exit(mask);

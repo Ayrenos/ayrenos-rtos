@@ -26,7 +26,6 @@ static void idle(void *argument)
     }
 }
 
-/* Unsigned subtraction handles tick wrap without signed overflow. */
 static bool tick_reached(uint32_t now, uint32_t deadline)
 {
     return (uint32_t)(now - deadline) <= (uint32_t)TASK_WAIT_MAX;
@@ -45,7 +44,6 @@ static void check_stack(task_control_t *task)
     }
 }
 
-/* Called by PendSV after it saves the outgoing task's context. */
 void scheduler_select(void)
 {
     if (scheduler_current != NULL) {
@@ -108,7 +106,6 @@ void scheduler_tick(void)
     }
 
     sync_internal_refresh_priorities();
-    /* One tick per time slice; priority selection happens in PendSV. */
     task_port_request_switch();
 }
 
